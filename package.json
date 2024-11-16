@@ -1,0 +1,11 @@
+{
+    "id": "Xss-swiper",
+    "name": "个性轮播图，这个轮播一定不会让你失望的！欢迎使用",
+    "version": "1.0.1",
+    "description": "swiper个性指示点",
+    "keywords": [
+        "swiper",
+        "轮播图"
+    ],
+    "dependencies": {}
+}

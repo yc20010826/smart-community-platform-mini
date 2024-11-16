@@ -1,0 +1,194 @@
+{
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^u-(.*)": "@/uni_modules/uview-ui/components/u-$1/u-$1.vue"
+		}
+	},
+	"tabBar":{
+		"color":"#7A7E83",
+		"selectedColor": "#FE966C",
+		"backgroundColor": "#ffffff",
+		"borderStyle":"white",
+		"list": [{
+			"pagePath": "pages/index/index",
+			"iconPath": "static/sy.png",
+			"selectedIconPath": "static/sy_ed.png",
+			"text": "首页大厅"
+		},{
+			"pagePath": "pages/release/release",
+			"iconPath": "static/fb.png",
+			"selectedIconPath": "static/fb_ed.png",
+			"text": "我要发布"
+		},{
+			"pagePath": "pages/message/index",
+			"iconPath": "static/msg.png",
+			"selectedIconPath": "static/msg_ed.png",
+			"text": "消息中心"
+		}, {
+			"pagePath": "pages/my/my",
+			"iconPath": "static/my.png",
+			"selectedIconPath": "static/my_ed.png",
+			"text": "个人中心"
+		}]
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "智慧生活平台",
+				"navigationStyle":"custom",
+				"enablePullDownRefresh":true
+			}
+		}
+	    ,{
+            "path" : "pages/index/select_community",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "选择小区/社区",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/information/information",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle":"custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/my",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的",
+				"navigationStyle":"custom",
+				"enablePullDownRefresh":true
+            }
+            
+        }
+        ,{
+            "path" : "pages/release/release",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我要发布",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/information/lists",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "信息列表",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/other/other-nformation",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "其他信息",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/my-information/my-information",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的发布",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/release/edit",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "编辑信息",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/add_community/add_community",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/message/message",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/message/message_details",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/shop/shop",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+            }
+            
+        }
+        ,{
+            "path" : "pages/shop/settlement/settlement",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "商品结算",
+                "enablePullDownRefresh": false
+            }
+            
+        },
+        {
+        	"path" : "pages/message/index",
+        	"style" : 
+        	{
+                "navigationBarTitleText": "消息中心",
+                "enablePullDownRefresh": true,
+				"navigationStyle": "custom"
+        	}
+        },
+        {
+        	"path" : "pages/user/info",
+        	"style" : 
+        	{
+                "navigationBarTitleText": "个人资料"
+        	}
+        }
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
+}
