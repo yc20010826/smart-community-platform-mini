@@ -12,6 +12,7 @@
 					<image src="/static/msg_ty.png" mode="" style="width: 40px;height: 40px;min-width: 40px;" v-if="item.type==1"></image>
 					<image src="/static/msg_ly.png" mode="" style="width: 40px;height: 40px;min-width: 40px;" v-if="item.type==2"></image>
 					<image src="/static/msg_kf.png" mode="" style="width: 40px;height: 40px;min-width: 40px;" v-if="item.type==3"></image>
+					<image src="/static/im.png" mode="" style="width: 40px;height: 40px;min-width: 40px;" v-if="item.type==999"></image>
 					<view style="margin-left: 15rpx;flex: 1;min-width: 0;overflow: hidden;">
 						<u-badge type="error" max="99" :value="classNum[item.type]"></u-badge>
 						<view>
@@ -19,9 +20,16 @@
 							<view style="font-weight: bolder;" v-if="item.type==1">系统消息</view>
 							<view style="font-weight: bolder;" v-if="item.type==2">推广消息</view>
 							<view style="font-weight: bolder;" v-if="item.type==3">评论通知</view>
+							<view style="font-weight: bolder;" v-if="item.type==999">在线沟通</view>
 						</view>
-						<view class="msg-list-item-title" v-if="classNum[item.type] < 1">{{ item.title }}</view>
-						<view class="msg-list-item-title" v-else>您有{{ classNum[item.type] }}条新的消息未查看，请及时点击查看！</view>
+						<view v-if="item.type!=999">
+							<view class="msg-list-item-title" v-if="classNum[item.type] < 1">{{ item.title }}</view>
+							<view class="msg-list-item-title" v-else>您有{{ classNum[item.type] }}条新的消息未查看，请及时点击查看！</view>
+						</view>
+						<view v-if="item.type==999">
+							<view class="msg-list-item-title" v-if="classNum[item.type] < 1">{{ item.title }}</view>
+							<view class="msg-list-item-title" v-else>有用户期待与您沟通，快去看看吧！</view>
+						</view>
 					</view>
 				</view>
 				<view style="font-size: 12px;color: #4EDD92;margin-right: 10rpx;text-align: center;">
@@ -73,12 +81,17 @@
 						type: 0,
 						title: "其他暂未分类的通知或消息"
 					},
+					// {
+					// 	id: 999,
+					// 	type: 999,
+					// 	title: "在线沟通消息中心，点击可进入"
+					// },
 				],
 				classNum: [0,0,0,0]
 			}
 		},
 		onReady() {
-
+			
 		},
 		onShow() {
 			this.get_un_read_msg_num()
@@ -91,6 +104,31 @@
 		},
 		methods: {
 			get_un_read_msg_num(){
+				// #ifdef H5|APP
+				let userInfo = uni.getStorageSync('userInfo')
+				if(!userInfo){
+					uni.showModal({
+						title: "用户未登录",
+						content:"消息中心需要登录后才能使用，建议您先登录账号再体验！",
+						cancelText:"暂不登录",
+						confirmText:"去登录",
+						success(res) {
+							if(res.confirm){
+								uni.navigateTo({
+									url:"/pages/login/index"
+								})
+								return
+							}
+							uni.switchTab({
+								url:"/pages/index/index"
+							})
+						}
+					})
+					return
+				}
+				// #endif
+			
+			
 				return new Promise((suc, err) => {
 					this.$http.to_http('/api/user/get_un_read_msg_num', {}, 'POST', false).then(res => {
 						res = res.data
@@ -116,6 +154,13 @@
 				})
 			},
 			to_msg_page(type){
+				if(type == 999){
+					// 沟通工具
+					uni.navigateTo({
+						url:`/pages/chat/index?uid=0&infoId=0`
+					})
+					return
+				}
 				uni.navigateTo({
 					url:"/pages/message/message?t="+type
 				})

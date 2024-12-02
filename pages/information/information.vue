@@ -14,22 +14,65 @@
 		</view>
 		<view class="content" style="padding: 30rpx;box-sizing: border-box;" v-if="info.title">
 			<view style="font-size: 18px;font-weight: bolder;margin-bottom: 30rpx;">
-				{{ info.title }}
+				<text>
+					{{ info.title }}
+				</text>
 			</view>
 			<view>
-				<u-parse :content="info.substance"></u-parse>
+				<u-parse :content="info.substance" :selectable="true"></u-parse>
 			</view>
-			<view class="item-footer" style="margin-bottom: 0rpx;">
+			<view class="item-footer" style="margin-top: 30rpx;">
 				<view class="d-f-j-i">
 					<view class="d-f-j-i"
 						style="justify-content: flex-start;color: #1487f4;margin-right: 10rpx;min-width: 70px;">
 						<u-icon name="tags" size="14" color=""></u-icon>
-						<span style="margin-left: 5rpx;font-size: 12px;">{{ info.category.name }}</span>
+						<span style="margin-left: 5rpx;font-size: 14px;">{{ info.category.name }}</span>
 					</view>
-					<view v-if="info.community_id" class="d-f-j-i" style="justify-content: flex-start;color: #1487f4;">
+					<view @click="to_daohang" v-if="info.community_id" class="d-f-j-i" style="justify-content: flex-start;color: #1487f4;">
 						<u-icon name="map-fill" size="14" color=""></u-icon>
 						<span
-							style="margin-left: 5rpx;font-size: 12px;">{{ info.community.name }}</span>
+							style="margin-left: 5rpx;font-size: 14px;">{{ info.community.name }}</span>
+					</view>
+				</view>
+			</view>
+			<view v-show="[14].includes(info.category_id)" style="margin-bottom: 30rpx;margin-top: 30rpx;">
+				<!-- 价格标识 -->
+				<view class="waterfall-item__price d-f-j-i">
+					<view>
+						<text>￥{{ info.price }}元</text>
+					</view>
+					<view style="color: #f08526;font-size: 16px;font-weight: 400;">
+						<view style="margin-bottom: 20rpx;">
+							<u-button type="warning" size="mini" icon="phone-fill" @click="get_contact">联系TA</u-button>
+						</view>
+						<!-- <view>
+							<u-button type="success" size="mini" icon="chat" @click="get_chat(info.user_id, info.id)">在线沟通</u-button>
+						</view> -->
+					</view>
+				</view>
+			</view>
+			<view v-show="[23].includes(info.category_id)" style="margin-bottom: 30rpx;margin-top: 30rpx;">
+				<!-- 价格标识 -->
+				<view class="waterfall-item__price d-f-j-i">
+					<view>
+						<text>￥{{ info.price }}元</text>
+					</view>
+					<view style="color: #f08526;font-size: 16px;font-weight: 400;" class="d-f-j-i">
+						<u-icon name="calendar" size="20" color=""></u-icon>
+						<text v-show="info.cycle == 0">一次性</text>
+						<text v-show="info.cycle == 1">天付</text>
+						<text v-show="info.cycle == 2">月付</text>
+						<text v-show="info.cycle == 3">季付</text>
+						<text v-show="info.cycle == 4">年付</text>
+						<text v-show="info.cycle == 5">面议</text>
+					</view>
+					<view style="color: #f08526;font-size: 16px;font-weight: 400;">
+						<view style="margin-bottom: 20rpx;">
+							<u-button type="warning" size="mini" icon="phone-fill" @click="get_contact">联系TA</u-button>
+						</view>
+						<!-- <view>
+							<u-button type="success" size="mini" icon="chat" @click="get_chat(info.user_id, info.id)">在线沟通</u-button>
+						</view> -->
 					</view>
 				</view>
 			</view>
@@ -46,7 +89,7 @@
 						<view style="display: flex;align-items: center;">
 							<span v-if="info.user.community_id == userInfo.community_id"
 								style="transform:scale(0.8);margin-left: -10rpx;">
-								<u-tag type="success" text="同小区" size="mini" plain plainFill></u-tag>
+								<u-tag type="success" text="同地点" size="mini" plain plainFill></u-tag>
 							</span>
 							<span v-if="info.community_id" style="transform:scale(0.8);margin-left: -15rpx;">
 								<u-tag icon="map" :text="info.community.name" size="mini" plain plainFill></u-tag>
@@ -67,7 +110,7 @@
 					</view>
 				</view>
 			</view>
-			<view style="margin-top: 30rpx;">
+			<view style="margin-top: 30rpx;" v-if="userInfo.id">
 				<hb-comment ref="hbComment" @add="addComment" @del="delComment" like="" focusOn=""
 					:deleteTip="'您确定需要删除本条评论信息吗？'" :cmData="commentData" v-if="commentData"></hb-comment>
 			</view>
@@ -93,7 +136,10 @@
 					title: '加载中...'
 				},
 				is_loading: true,
-				userInfo: [],
+				userInfo: {
+					id: 0,
+					community_id : 0
+				},
 				commentData:{
 					comment:[]
 				}
@@ -104,7 +150,7 @@
 				console.log(res.target)
 			}
 			return {
-				title: '【渝快同城】' + this.info.title,
+				title:  this.info.title + '【渝快同城·重庆自家人的圈子】',
 				path: 'pages/information/information?information_id=' + this.info.id,
 				imageUrl: !uni.$u.test.isEmpty(this.info.images_arr) ? this.info.images_arr[0] : this.$baseUrl +
 					"/share_logos.png"
@@ -115,12 +161,12 @@
 				console.log(res.target)
 			}
 			return {
-				title: '【渝快同城】' + this.info.title,
+				title:  this.info.title + '【渝快同城·重庆自家人的圈子】',
 				imageUrl: !uni.$u.test.isEmpty(this.info.images_arr) ? this.info.images_arr[0] : this.$baseUrl +
 					"/share_logos.png"
 			}
 		},
-		onShow() {
+		async onShow() {
 			// 已经登录了，容差判断资料
 			if (uni.getStorageSync('token')) {
 				let userInfo = uni.getStorageSync('userInfo')
@@ -131,9 +177,12 @@
 						this.$refs.auth_phone.openAuth()
 					}
 				}
+				await this.get_info()
+				this.get_comment()
 			}
 		},
 		async onLoad(e) {
+			// #ifdef MP-WEIXIN
 			this.userInfo = uni.getStorageSync('userInfo')
 			if (uni.$u.test.isEmpty(this.userInfo)) {
 				// 需要登录
@@ -143,12 +192,52 @@
 					this.$refs.auth_userInfo.openAuth()
 				}
 			}
+			// #endif
+			
 			this.information_id = e.information_id
-			await this.get_info()
-			this.get_comment()
 			
 		},
 		methods: {
+			to_daohang() {
+				let lon = this.info.community.longitude
+				let lat = this.info.community.latitude
+				uni.openLocation({
+					latitude: lat,
+					longitude: lon,
+					scale: 16, // 缩放比例
+					name: this.info.community.name,
+					address: '', // 这个可能会影响地图的定位，所以可以选择不填
+					success(data) {
+						
+					},
+					fail(err) {
+						console.log('导航失败', err);
+						uni.showToast({
+							title: "导航失败，位置不正确",
+							icon:"none"
+						})
+					}
+				})
+			},
+			get_chat(uid, infoId){
+				if(!this.userInfo.id){
+					uni.showModal({
+						title: "尚未登录",
+						content: "本功能需登录后才能进行在线联系，请先登录后尝试沟通！",
+						showCancel: false,
+						confirmText: "去登录",
+						success: (res) => {
+							if(res.confirm){
+								return this.$do_login()
+							}
+						}
+					})
+				}else{
+					uni.navigateTo({
+						url:`/pages/chat/index?uid=${uid}&infoId=${infoId}`
+					})
+				}
+			},
 			addComment(res){
 				this.$http.to_http('/api/information/add_comment', {
 					information_id: this.information_id,
@@ -363,4 +452,12 @@
 		}
 	}
 	
+	
+	
+	.waterfall-item__price {
+		color: #f08526;
+		font-size: 20px;
+		font-weight: 800;
+		width: 100%;
+	}
 </style>

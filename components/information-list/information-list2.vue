@@ -15,9 +15,32 @@
 							<view class="waterfall-item__ft__title">
 								<text class="value">{{item.title}}</text>
 							</view>
-							<view class="item-footer">
+							<view class="item-footer" v-show="![14, 23].includes(item.category_id)">
 								<view style="color: #797979;font-size: 24rpx;">
 									{{item.desc}}
+								</view>
+							</view>
+							<view class="item-footer" v-show="[14, 23].includes(item.category_id)">
+								<!-- 二手物品 -->
+								<view class="waterfall-item__price" v-show="[14].includes(item.category_id)">
+									<text v-if="item.price>0">￥{{ item.price }}元</text>
+									<text v-else>价格面议</text></text>
+								</view>
+								<!-- 房屋出租 -->
+								<view class="waterfall-item__price d-f-j-i" v-show="[23].includes(item.category_id)">
+									<view>
+										<text v-if="item.price>0">￥{{ item.price }}元</text>
+										<text v-else>价格面议</text></text>
+									</view>
+									<view style="color: #777;font-size: 14px;font-weight: 400;" class="d-f-j-i">
+										<u-icon name="calendar" size="18" color=""></u-icon>
+										<text v-show="item.cycle == 0">一次性</text>
+										<text v-show="item.cycle == 1">天付</text>
+										<text v-show="item.cycle == 2">月付</text>
+										<text v-show="item.cycle == 3">季付</text>
+										<text v-show="item.cycle == 4">年付</text>
+										<text v-show="item.cycle == 5">面议</text>
+									</view>
 								</view>
 							</view>
 							<view class="item-footer" style="margin-bottom: 0rpx;">
@@ -27,7 +50,8 @@
 										<u-icon name="tags" size="14" color=""></u-icon>
 										<span style="margin-left: 5rpx;font-size: 12px;">{{ item.category.name }}</span>
 									</view>
-									<view v-if="item.community.name" class="d-f-j-i" style="justify-content: flex-start;color: #1487f4;">
+									<view v-if="item.community.name" class="d-f-j-i"
+										style="justify-content: flex-start;color: #1487f4;">
 										<u-icon name="map-fill" size="14" color=""></u-icon>
 										<span
 											style="margin-left: 5rpx;font-size: 12px;">{{ item.community.name }}</span>
@@ -86,9 +110,32 @@
 							<view class="waterfall-item__ft__title">
 								<text class="value">{{item.title}}</text>
 							</view>
-							<view class="item-footer">
+							<view class="item-footer" v-show="![14, 23].includes(item.category_id)">
 								<view style="color: #797979;font-size: 24rpx;">
 									{{item.desc}}
+								</view>
+							</view>
+							<view class="item-footer" v-show="[14, 23].includes(item.category_id)">
+								<!-- 二手物品 -->
+								<view class="waterfall-item__price" v-show="[14].includes(item.category_id)">
+									<text v-if="item.price>0">￥{{ item.price }}元</text>
+									<text v-else>价格面议</text></text>
+								</view>
+								<!-- 房屋出租 -->
+								<view class="waterfall-item__price d-f-j-i" v-show="[23].includes(item.category_id)">
+									<view>
+										<text v-if="item.price>0">￥{{ item.price }}元</text>
+										<text v-else>价格面议</text></text>
+									</view>
+									<view style="color: #777;font-size: 14px;font-weight: 400;" class="d-f-j-i">
+										<u-icon name="calendar" size="18" color=""></u-icon>
+										<text v-show="item.cycle == 0">一次性</text>
+										<text v-show="item.cycle == 1">天付</text>
+										<text v-show="item.cycle == 2">月付</text>
+										<text v-show="item.cycle == 3">季付</text>
+										<text v-show="item.cycle == 4">年付</text>
+										<text v-show="item.cycle == 5">面议</text>
+									</view>
 								</view>
 							</view>
 							<view class="item-footer" style="margin-bottom: 0rpx;">
@@ -98,7 +145,8 @@
 										<u-icon name="tags" size="14" color=""></u-icon>
 										<span style="margin-left: 5rpx;font-size: 12px;">{{ item.category.name }}</span>
 									</view>
-									<view v-if="item.community.name" class="d-f-j-i" style="justify-content: flex-start;color: #1994ff;">
+									<view v-if="item.community.name" class="d-f-j-i"
+										style="justify-content: flex-start;color: #1994ff;">
 										<u-icon name="map-fill" size="14" color=""></u-icon>
 										<span
 											style="margin-left: 5rpx;font-size: 12px;">{{ item.community.name }}</span>
@@ -158,12 +206,16 @@
 		},
 		props: {
 			information_list: {
-				type: Object | Array,
-				default: [],
+				type: Object | Array | null,
+				default: ()=>{
+					return []
+				},
 			},
 			user_info: {
-				type: Object | Array,
-				default: [],
+				type: Object | Array | null,
+				default: ()=>{
+					return []
+				},
 			},
 		},
 		computed: {
@@ -181,11 +233,14 @@
 			}
 		},
 		mounted() {
-			const systemInfo = uni.getSystemInfoSync();
-			if (systemInfo.windowWidth <= 380) {
-				// 适配小屏幕
-				this.multipleSize = 72
-			}
+			uni.getSystemInfo({
+				success: (systemInfo) => {
+					if (systemInfo.windowWidth <= 380) {
+						// 适配小屏幕
+						this.multipleSize = 72
+					}
+				}
+			});
 		},
 		methods: {
 			init(information_list) {
@@ -258,6 +313,13 @@
 		overflow: hidden;
 		margin-top: 10px;
 		border-radius: 6px;
+	}
+
+	.waterfall-item__price {
+		color: #f08526;
+		font-size: 18px;
+		font-weight: 800;
+		width: 100%;
 	}
 
 	.waterfall-item__ft {

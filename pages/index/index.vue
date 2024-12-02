@@ -1,7 +1,13 @@
 <template>
 	<view style="background:#f3f4f6;position:absolute;top:0;left:0;right:0;bottom: 0;">
+		<!-- #ifdef MP-WEIXIN -->
 		<u-loading-page :loading="is_loading"></u-loading-page>
 		<view v-show="!is_loading">
+		<!-- #endif -->
+		
+		<!-- #ifdef H5|APP -->
+		<view>
+		<!-- #endif -->
 			<u-navbar leftText="" title="首页" :placeholder="true" @leftClick="select_community">
 				<view class="u-nav-slot" slot="left" style="display: flex;justify-content: center;align-items: center;">
 					<u-icon name="map-fill" size="19" color="#333"></u-icon>
@@ -98,7 +104,7 @@
 					name: '热门推荐',
 					value:1
 				}, {
-					name: '当前位置',
+					name: '当前地点',
 					value:2
 				}]
 			}
@@ -122,21 +128,23 @@
 			  imageUrl: this.$baseUrl + "/share_logos.png"
 			}
 		},
-		onLoad() {
+		onReady() {
 			this.init()
 		},
 		onShow() {
 			// 已经登录了，容差判断资料
 			if(uni.getStorageSync('token')){
 				let userInfo = uni.getStorageSync('userInfo')
-				if (!userInfo || userInfo.nickname == '') {
-					this.$refs.auth_userInfo.openAuth()
-				}else{
+				if(userInfo){
 					if (userInfo.mobile == '') {
 						this.$refs.auth_phone.openAuth()
+					}else{
+						if (userInfo.nickname == '') {
+							this.$refs.auth_userInfo.openAuth()
+						}
 					}
+					this.get_un_read_msg_num()
 				}
-				this.get_un_read_msg_num()
 			}
 		},
 		onPullDownRefresh() {
@@ -175,12 +183,14 @@
 					url:"/pages/add_community/add_community"
 				})
 			},
-			init() {
+			async init() {
 				this.information_form.seach_type = 0;
 				this.page_loding = 'loading'
 				this.information_list = [];
 				this.$refs.information_list.foreFlowView(); // 清空瀑布流
 				this.information_form.page = 1;
+				
+				// #ifdef MP-WEIXIN
 				uni.authorize({
 					scope: 'scope.userLocation',
 					success: async () => {
@@ -236,10 +246,11 @@
 						}
 						// 已经登录了，容差判断资料
 						let userInfo = uni.getStorageSync('userInfo')
+						if (userInfo.mobile == '') {
+							this.$refs.auth_phone.openAuth()
+						}
 						if (!userInfo || userInfo.nickname == '') {
 							this.$refs.auth_userInfo.openAuth()
-						}else if (userInfo.mobile == '') {
-							this.$refs.auth_phone.openAuth()
 						}
 						this.userInfo = userInfo
 						this.get_un_read_msg_num()
@@ -255,7 +266,7 @@
 						let _this = this
 						uni.showModal({
 							title: '授权提示',
-							content: '我们需要您的位置信息用于匹配您最近的服务，建议您授权位置信息！',
+							content: '我们需要您的位置信息用于匹配您最近的服务，如您不授权位置信息，将无法展示相关内容，建议您授权位置信息！',
 							success: (res) => {
 								if (res.confirm) {
 									uni.openSetting({
@@ -266,11 +277,78 @@
 											}
 										}
 									});
-								} else if (res.cancel) {}
+								} else if (res.cancel) {
+									this.community_name = '未授权位置'
+									this.is_notopen = true
+									this.is_loading = false
+								}
 							}
 						});
 					}
 				})
+				// #endif
+				
+				
+				// #ifdef H5|APP
+				let location = await this.$get_location()
+				await this.get_community()
+				if (uni.$u.test.isEmpty(this.community_list)) {
+					this.community_name = '手动选择'
+					this.is_notopen = true
+					this.is_loading = false
+					return uni.showToast({
+						title: "当前地区暂未开放",
+						icon: "none"
+					})
+				}
+				this.is_notopen = false
+				
+				// 判断是否手动设置过小区ID
+				let manual_community_id = uni.getStorageSync('manual_community_id')
+				let exp_manual_community_id_time = uni.getStorageSync('exp_manual_community_id_time')
+				if (uni.$u.test.isEmpty(manual_community_id)) {
+					// console.log('没有设置过区域，自动默认');
+					// 没有手动设置过就更新小区信息
+					uni.setStorageSync('community_id', this.community_list[0].id)
+					this.community_name = this.community_list[0].name
+				} else {
+					// 判断上次设置时间是否超过
+					if(uni.$u.test.isEmpty(exp_manual_community_id_time) || (new Date().getTime()/1000)>exp_manual_community_id_time){
+						console.log('手动选择区域超时，已重置！');
+						// 已经超时，清理掉
+						uni.removeStorageSync('manual_community_id')
+						uni.removeStorageSync('manual_community_name')
+						uni.removeStorageSync('exp_manual_community_id_time')
+						uni.setStorageSync('community_id', this.community_list[0].id)
+						this.community_name = this.community_list[0].name
+					}else{
+						// if (manual_community_id != this.community_list[0].id) {
+						// 	uni.showToast({
+						// 		title: "当前定位可能不精准，建议手动选择位置",
+						// 		icon: "none"
+						// 	})
+						// }
+						this.community_name = uni.getStorageSync('manual_community_name')
+					}
+					
+					this.information_form.community_id = uni.getStorageSync('community_id') // 加一句，不知道为什么这里覆盖不了，只能手动试试看咯
+					
+				}
+				
+				// 已经登录了，容差判断资料
+				let userInfo = uni.getStorageSync('userInfo')
+				this.userInfo = userInfo
+				if(this.userInfo){
+					this.get_un_read_msg_num()
+				}
+				this.get_information()
+				this.get_banner()
+				this.get_modular()
+				this.loading = false
+				setTimeout(()=>{
+					this.is_loading = false
+				}, 500)
+				// #endif
 			},
 			/**
 			 * 选择小区
@@ -304,7 +382,7 @@
 			 */
 			get_community() {
 				return new Promise((suc, err) => {
-					this.$http.to_http('/api/common/get_community', {}, 'POST', false).then(res => {
+					this.$http.to_http('/api/common/get_community_v2', {}, 'POST', false).then(res => {
 						res = res.data
 						if (res.code != 1) {
 							return uni.showToast({
@@ -312,13 +390,13 @@
 								icon: "none"
 							})
 						}
-						this.community_list = res.data
+						this.community_list = res.data.data
 						suc(true);
 					})
 				})
 			},
 			/**
-			 * 获取小区列表
+			 * 获取banner列表
 			 */
 			get_banner() {
 				return new Promise((suc, err) => {
@@ -393,7 +471,12 @@
 						suc(true);
 					}).catch(async err=>{
 						if(err.statusCode = 401 && this.error_num>0){
+							// #ifdef MP-WEIXIN
 							await this.$wechatLogin()
+							// #endif
+							// #ifdef H5|APP
+								// h5下不处理强制登录
+							// #endif
 							await this.get_information()
 						}
 						suc(true);
@@ -446,5 +529,6 @@
 		background:#f3f4f6;
 		padding-bottom: 10px;
 		box-sizing: border-box;
+		color: #333;
 	}
 </style>

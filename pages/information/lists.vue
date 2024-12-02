@@ -1,6 +1,13 @@
 <template>
 	<view style="background:#f3f4f6;position:absolute;top:0;left:0;right:0;bottom: 0;">
-		<u-navbar :title="title" :autoBack="true" :placeholder="true"></u-navbar>
+		<u-navbar :title="title" :placeholder="true">
+			<view class="u-nav-slot" slot="left"
+				style="display:flex;align-items:center;justify-content:space-around;padding:3px 8px 3px 7px;opacity:.8;flex-direction:row;border:0.5px #c8c9cc solid;border-radius:200rpx;">
+				<u-icon name="arrow-left" size="19" @click="$returnPage()"></u-icon>
+				<u-line direction="column" :hairline="false" length="16" margin="0 8px"></u-line>
+				<u-icon name="home" size="20" @click="$returnPage(true)"></u-icon>
+			</view>
+		</u-navbar>
 		<view style="margin-bottom: 13rpx;background-color: #ffffff;padding: 15rpx 30rpx;">
 			<u-search :show-action="true" actionText="搜索" :animation="false" @custom="get_information(true)" @search="get_information(true)" v-model="information_form.key"></u-search>
 		</view>
@@ -16,6 +23,12 @@
 			<informationList2 ref="information_list" :user_info="userInfo" @click_item="to_information"></informationList2>
 			<u-loadmore :status="page_loding" loading-text="Loding..." loadingIcon="spinner"  v-if="!(page_loding == 'nomore' && $u.test.isEmpty(information_list))"/>
 		</view>
+		<liu-drag-button @clickBtn="clickBtn" :canDocking="false" rightPx="10" bottomPx="150">
+			<view style="display: block;">
+				<view>我要</view>
+				<view>发布</view>
+			</view>
+		</liu-drag-button>
 	</view>
 </template>
 
@@ -114,7 +127,7 @@
 				        'title': '更多',
 				        'detailTitle': '',
 				        'key': 'other_screening',
-				        'isMutiple': false,
+				        'isMutiple': true,
 				        'detailList': [
 				            {
 				                'title': '不限制',
@@ -122,22 +135,78 @@
 				            },
 				            {
 				                'title': '仅看我的小区',
-				                'value': 1
+				                'value': 'only_my_community'
 				            },
 				            {
 				                'title': '仅看当前小区',
-				                'value': 2
+				                'value': 'only_bet_community'
 				            }
 				        ]
 				    }
 				]
 			}
 		},
+		onShareAppMessage(res) {
+			if (res.from === 'button') {
+			  console.log(res.target)
+			}
+			return {
+			  title: '【' + this.title + '】❤这里是渝快同城-重庆自己人的圈子~',
+			  path: '/pages/index/index',
+			  imageUrl: this.$baseUrl + "/share_logos.png"
+			}
+		},
+		onShareTimeline(res) {
+			if (res.from === 'button') {
+			  console.log(res.target)
+			}
+			return {
+			  title: '【' + this.title + '】❤这里是渝快同城-重庆自己人的圈子~',
+			  imageUrl: this.$baseUrl + "/share_logos.png"
+			}
+		},
 		onLoad(e) {
+			console.log('key', e.category_id);
 			this.information_form.category_id = e.category_id
+			switch(e.category_id){
+				case '23':
+				case '14':
+					let appendData = [
+						{
+							'title': '价格从高到低',
+							'value': 'price_desc',
+						},
+						{
+							'title': '价格从低到高',
+							'value': 'price_asc',
+						},
+						{
+							'title': '不看面议价',
+							'value': 'not_look_price',
+						},
+					]
+					this.menuList[3]['detailList'] = this.menuList[3]['detailList'].concat(appendData)
+				break;
+				default:
+			}
 			this.get_information()
 		},
 		methods: {
+			clickBtn(){
+				uni.showModal({
+					title: "发布提示",
+					content:"本功能需要登录后使用，请在首页登录后点击下方菜单“我要发布”进行选择板块分类即可发布",
+					showCancel:false,
+					confirmText:"知道啦",
+					success(res) {
+						if(res.confirm){
+							uni.switchTab({
+								url:"/pages/index/index"
+							})
+						}
+					}
+				})
+			},
 			to_information(item) {
 				uni.navigateTo({
 					url: "../information/information?information_id=" + item.id

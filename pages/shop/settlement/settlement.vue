@@ -51,30 +51,6 @@
 				</view>
 			</view>
 		</view>
-		<view class="coupon">
-			<!-- 优惠券 -->
-			<view class="coupon-info">
-				<view class="coupon-name">优惠券</view>
-				<view class="coupon-value">-¥10.00</view>
-			</view>
-			<image src="./assets/images/right-arrow.png" mode="aspectFit" />
-		</view>
-		<view class="shipping-fee">
-			<!-- 运费 -->
-			<view class="shipping-fee-info">
-				<view class="shipping-fee-name">运费</view>
-				<view class="shipping-fee-value">¥5.00</view>
-			</view>
-			<image src="./assets/images/right-arrow.png" mode="aspectFit" />
-		</view>
-		<view class="total-amount">
-			<!-- 实付金额 -->
-			<view class="total-amount-info">
-				<view class="total-amount-name">实付金额</view>
-				<view class="total-amount-value">¥{{ totalPrice }}</view>
-			</view>
-			<view class="submit-button">提交订单</view>
-		</view>
 	</view>
 </template>
 

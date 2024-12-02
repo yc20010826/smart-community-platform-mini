@@ -75,11 +75,14 @@
 			},
 		},
 		mounted() {
-			const systemInfo = uni.getSystemInfoSync();
-			if (systemInfo.windowWidth <= 380) {
-				// 适配小屏幕
-				this.multipleSize = 72
-			}
+			uni.getSystemInfo({
+				success:(systemInfo)=>{
+					if (systemInfo.windowWidth <= 380) {
+						// 适配小屏幕
+						this.multipleSize = 72
+					}
+				}
+			});
 		},
 		methods: {
 			/**

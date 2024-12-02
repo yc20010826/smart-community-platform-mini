@@ -45,7 +45,7 @@
             "path" : "pages/index/select_community",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "选择小区/社区",
+                "navigationBarTitleText": "选择地点",
                 "enablePullDownRefresh": false,
 				"navigationStyle": "custom"
             }
@@ -183,11 +183,26 @@
         	{
                 "navigationBarTitleText": "个人资料"
         	}
+        },
+        {
+        	"path" : "pages/login/index",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "",
+				"navigationStyle": "custom"
+        	}
+        },
+        {
+        	"path" : "pages/chat/index",
+        	"style" : 
+        	{
+        		"navigationBarTitleText" : "在线沟通"
+        	}
         }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "渝快同城·智慧生活",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	}

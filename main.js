@@ -153,8 +153,15 @@ Vue.prototype.$wechatLogin = () => {
 			}
 		});
 	})
-
 }
+
+Vue.prototype.$do_login = ()=>{
+	uni.hideLoading()
+	uni.navigateTo({
+		url:"/pages/login/index"
+	})
+}
+
 
 import uView from '@/uni_modules/uview-ui'
 Vue.use(uView)

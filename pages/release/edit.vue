@@ -2,7 +2,7 @@
 	<view>
 		<view style="padding: 30rpx;box-sizing: border-box;">
 			<u--form labelPosition="left" :model="add_form" ref="add_form_ref">
-				<u-form-item label="发布分类" labelWidth="80" borderBottom @click="show_type = true;" prop="category_id">
+				<u-form-item label="发布板块" labelWidth="80" borderBottom @click="show_type = true;" prop="category_id">
 					<u--input v-model="category_name" disabled disabledColor="#ffffff" placeholder="请选择准备发布的板块"
 						border="none"></u--input>
 					<u-icon slot="right" name="arrow-right"></u-icon>
@@ -13,29 +13,48 @@
 				</u-form-item>
 				<u-form-item label="主要内容" labelWidth="80" prop="substance"></u-form-item>
 				<u--textarea placeholder="在这里创作您的信息, 请勿发布违反法律规定的内容哟,否则会被拉入黑名单的哟~" :border="false" :height="160" count
-					:maxlength="1000" v-model="add_form.substance"></u--textarea>
+					:maxlength="1000" v-model="add_form.substance" confirmType="null" :disableDefaultPadding="true"></u--textarea>
 				<!-- <u-form-item label="图片上传" labelWidth="80"></u-form-item> -->
-				<u-upload :fileList="img_list1" @afterRead="img_afterRead" @delete="img_deletePic" :name="1" multiple
-					:maxCount="10" :previewFullImage="true"></u-upload>
-				<u-form-item label="联系电话" labelWidth="80">
+				
+				<u-upload :fileList="img_list1" @afterRead="img_afterRead" @delete="img_deletePic" name="1" multiple
+					:maxCount="10" :previewFullImage="true" :width="imgViewWidth" :height="imgViewWidth"></u-upload>
+					
+				
+				<u-form-item label="挂网价格" labelWidth="80" prop="price" v-if="[14, 23].includes(add_form.category_id)">
+					<u--input placeholder="输入0,则表示本价格需要面议商谈" border="none" count :maxlength="50" showWordLimit
+						v-model="add_form.price"></u--input>
+					<text slot="right" style="font-weight: bold;">元</text>
+				</u-form-item>
+				<u-form-item label="付款周期" labelWidth="80" @click="show_cycle = true;" prop="cycle" v-if="[23].includes(add_form.category_id)">
+					<u--input v-model="cycle_name" disabled disabledColor="#ffffff" placeholder="请选择预期付款周期"
+						border="none"></u--input>
+					<u-icon slot="right" name="arrow-right"></u-icon>
+				</u-form-item>	
+				<u-form-item label="联系电话" labelWidth="80" v-if="[14, 23].includes(add_form.category_id)">
 					<u--input placeholder="如不输入将自动获取手机号" border="none" count :maxlength="11" showWordLimit
 						v-model="add_form.contact" v-if="!show_type"></u--input>
 				</u-form-item>
-				<view style="display: flex;justify-content: space-between;align-items: center;margin-top: 15rpx;margin-bottom: 15rpx;">
-					<view style="font-size: 15px;">隐藏位置</view>
+				
+				<view style="border-left: 5px solid #f08526;padding-left: 15rpx;margin: 30rpx 0;">权限设置</view>
+				
+				<view v-if="![23].includes(add_form.category_id)" style="display: flex;justify-content: space-between;align-items: center;margin-top: 15rpx;margin-bottom: 15rpx;">
+					<view style="font-size: 15px;">隐藏地点</view>
 					<view>
-						<u-switch v-model="add_form.is_hide_location"  @change="is_hide_location_change" size="18"></u-switch>
+						<u-switch activeColor="#f08526" v-model="add_form.is_hide_location"  @change="is_hide_location_change" size="18"></u-switch>
 					</view>
 				</view>
-				<u-form-item label="我的位置" @click="select_community" prop="community_name" labelWidth="80" v-if="!add_form.is_hide_location">
-					<u--input v-model="add_form.community_name" disabled disabledColor="#ffffff" placeholder="可选（不选择默认当前小区）"
+				<u-form-item label="发布地点" @click="select_community" prop="community_name" labelWidth="80" v-if="!add_form.is_hide_location">
+					<u--input v-model="add_form.community_name" disabled disabledColor="#ffffff" placeholder="内容发布的关联地点"
 						border="none"></u--input>
 					<u-icon slot="right" name="arrow-right"></u-icon>
 				</u-form-item>
 				<view style="display: flex;justify-content: space-between;align-items: center;margin-top: 15rpx;">
-					<view style="font-size: 15px;">仅我的小区可见</view>
+					<view style="font-size: 15px;">
+						仅常驻地点可见
+						<text style="font-size: 12px;color: #777;">(*仅我常驻地点用户可见)</text>
+					</view>
 					<view>
-						<u-switch v-model="add_form.is_thiscom"  @change="is_thiscom_change" size="18"></u-switch>
+						<u-switch activeColor="#f08526" v-model="add_form.is_thiscom"  @change="is_thiscom_change" size="18"></u-switch>
 					</view>
 				</view>
 				<!-- <view style="display: flex;justify-content: space-between;align-items: center;margin-top: 15rpx;">
@@ -46,12 +65,19 @@
 				</view> -->
 			</u--form>
 			<view style="margin-top: 30rpx;">
-				<u-button type="success" text="立即发布" @click="submit()" icon="edit-pen"></u-button>
+				<u-button type="warning" style="font-weight: 800;" text="立即发布" @click="submit()" icon="edit-pen"></u-button>
 			</view>
 		</view>
 
 		<u-picker :show="show_type" :columns="type_list" keyName="name" @cancel="show_type = false"
 			@confirm="type_select" :immediateChange="true"></u-picker>
+			
+		<u-picker :show="show_cycle" :columns="cycle_list" keyName="label" @cancel="show_cycle = false"
+			@confirm="(e)=>{
+				cycle_name = e.value[0].label
+				add_form.cycle = e.value[0].id
+				show_cycle = false
+			}" :immediateChange="true"></u-picker>
 	</view>
 </template>
 
@@ -60,18 +86,23 @@
 	export default {
 		data() {
 			return {
+				imgViewWidth: 0,
 				information_id:null,
 				show_type: false,
+				show_cycle: false,
 				img_list1: [],
 				images: [],
 				type_list_defaultIndex:[1],
 				category_name: '',
+				cycle_name: '一次性',
 				add_form: {
 					category_id: '',
 					title: '',
 					substance: '',
 					images: '',
 					contact: '',
+					price: '',
+					cycle: 0,
 					is_thiscom: false,
 					no_publicity: false,
 					is_hide_location: false,
@@ -79,6 +110,34 @@
 					community_name:null,
 				},
 				type_list: [],
+				cycle_list: [
+					[
+						{
+							id: 0,
+							label: '一次性',
+						},
+						{
+							id: 1,
+							label: '日付',
+						},
+						{
+							id: 2,
+							label: '月付',
+						},
+						{
+							id: 3,
+							label: '季付',
+						},
+						{
+							id: 4,
+							label: '年付',
+						},
+						{
+							id: 5,
+							label: '面议',
+						},
+					]
+				],
 				add_form_rules: {
 					'category_id': {
 						type:"integer",
@@ -113,6 +172,12 @@
 			
 		},
 		async onLoad(e) {
+			// 计算宽度
+			uni.getSystemInfo({
+				success:(systemInfo)=>{
+					this.imgViewWidth = ((systemInfo.windowWidth-(25*2))/3)
+				}
+			});
 			this.information_id = e.information_id
 			await this.get_information_type()
 			this.get_info()
@@ -124,6 +189,14 @@
 		},
 		methods: {
 			is_hide_location_change(e) {
+				if(this.add_form.category_id == 23){
+					this.add_form.is_hide_location = false
+					uni.showToast({
+						title: "本板块不可隐藏位置",
+						icon: "none"
+					})
+					return
+				}
 				this.add_form = Object.assign({}, {...this.add_form, is_hide_location: e})
 			},
 			/**
@@ -154,6 +227,12 @@
 						this.add_form = res.data
 						this.add_form.is_thiscom = res.data.is_thiscom==1?true:false
 						this.category_name = res.data.category.name
+						let cycle_arr = this.cycle_list[0].filter((el, index)=>{
+							return el.id == res.data.cycle
+						})
+						if(cycle_arr){
+							this.cycle_name = cycle_arr[0].label
+						}
 						this.add_form.community_name = res.data.community.name
 						if(uni.$u.test.isEmpty(res.data.community_id)){
 							this.add_form.is_hide_location = true
@@ -174,9 +253,9 @@
 				})
 			},
 			submit(){
-				if(this.images.length > 0 && this.images.length < 2){
+				if(this.images.length < 1){
 					return uni.showToast({
-						title: '嗷嗷，配图最少两张哟~',
+						title: '哎哟喂，配图最少一张哟~',
 						icon: "none"
 					})
 				}
@@ -242,6 +321,19 @@
 				this.add_form.category_id = e.value[0].id
 				this.show_type = false
 				this.$refs.add_form_ref.validateField('add_form.category_id')
+				switch (e.value[0].id){
+					case 23:
+						this.add_form.is_hide_location = false
+						uni.showModal({
+							title:"发布提示",
+							content: "发布房产类租售信息，需要上传3张及以上的照片，建议在内容中描述好地理位置及其房屋具体情况，如有用户感兴趣，将会使用您下方填写的联系方式与您沟通，本平台不参与任何中介服务！请勿上传其他广告或非法内容，一经查实，从重处罚！",
+							confirmText: "知道了",
+							showCancel:false
+						})
+						break;
+					default:
+						break;
+				}
 			},
 			// 删除图片
 			img_deletePic(event) {
@@ -334,5 +426,11 @@
 <style lang="scss">
 	.u-textarea__field {
 		margin-left: -10rpx !important;
+	}
+	.u-upload__wrap__preview{
+		margin: 0 0 8rpx 8rpx !important;
+	}
+	/deep/ .u-form-item__body__left__content{
+		font-weight: 800 !important;
 	}
 </style>

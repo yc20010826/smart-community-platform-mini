@@ -14,7 +14,7 @@
 						<u-icon slot="right" name="arrow-right"></u-icon>
 					</u-form-item>
 					<u-form-item label="地点名称" borderBottom prop="name" labelWidth="80">
-						<u--input placeholder="请输入该地点的名称,例如小区名称" border="none" count :maxlength="50" showWordLimit
+						<u--input placeholder="请输入该地点的名称,例如地点名称" border="none" count :maxlength="50" showWordLimit
 							v-model="add_form.name"></u--input>
 					</u-form-item>
 					<u-form-item label="申请描述" borderBottom prop="status_msg" labelWidth="80">
@@ -31,7 +31,7 @@
 					感谢您在此为我们做出的贡献，我们将尽快审核您的申请，一般会在24小时内处理完成，我们有可能会以短信形式通知您，请您随时关注本小程序！
 				</view>
 				<view style="margin-top: 15rpx;">
-					请勿频繁提交一个地点的建站申请，本小程序大部分功能不依赖小区/社区进行，规划小区/社区仅作为信息参考使用，后期根据运营情况对申请建站人进行奖励。
+					请勿频繁提交一个地点的建站申请，本小程序大部分功能不依赖地点进行，规划地点仅作为信息参考使用，后期根据运营情况对申请建点人进行奖励。
 				</view>
 			</view>
 		</view>			

@@ -14,12 +14,12 @@
 				<u-avatar :src="userInfo.avatar" size="60"></u-avatar>
 				<view style="margin-left: 30rpx;color: #fff">
 					<view style="font-weight: bolder;font-size: 20px;">
-						{{ userInfo.nickname }}
+						{{ userInfo.nickname || '渝快用户' }}
 					</view>
 					<view style="display: flex;padding: 10rpx 0;">
 						<view style="display: flex;font-size: 14px;align-items: center;" @click.stop="bind_community">
 							<u-icon name="/static/community_ico.png" size="16" color="#ffffff"></u-icon>
-							<span style="margin-left: 5rpx;" v-if="$u.test.isEmpty(userInfo.community_id)">点击绑定小区</span>
+							<span style="margin-left: 5rpx;" v-if="$u.test.isEmpty(userInfo.community_id)">点击绑定地点</span>
 							<span style="margin-left: 5rpx;" v-else>{{ userInfo.community_name }}</span>
 						</view>
 					</view>
@@ -32,11 +32,11 @@
 		</view>
 		<view class="userInfo">
 			<view style="width: 50%;text-align: center;">
-				<view style="font-weight: bolder;font-size: 24px;">￥{{ userInfo.money }}</view>
+				<view style="font-weight: bolder;font-size: 24px;">￥{{ userInfo.money || '0.00' }}</view>
 				<view>我的钱包</view>
 			</view>
 			<view style="width: 50%;text-align: center;">
-				<view style="font-weight: bolder;font-size: 24px;">{{ userInfo.score }}</view>
+				<view style="font-weight: bolder;font-size: 24px;">{{ userInfo.score || '0.00' }}</view>
 				<view>我的积分</view>
 			</view>
 		</view>
@@ -91,7 +91,7 @@
 						<view style="margin-left: 10rpx;">建点申请</view>
 					</view>
 					<view style="display: flex;align-items: center;">
-						<view style="font-size: 14px;color: #c2ccc2;">小区没有？点我申请</view>
+						<view style="font-size: 14px;color: #c2ccc2;">想要新地点？点我申请</view>
 						<u-icon name="arrow-right" color="#b0b9b0" size="20"></u-icon>
 					</view>
 				</view>
@@ -119,19 +119,27 @@
 						<u-icon name="arrow-right" color="#b0b9b0" size="20"></u-icon>
 					</view>
 				</view>
-				<view class="setItem" @click="to_kf">
+				<button class="setItem setItemBtn" 
+					style="width: 100%;background: #fff;border: none;line-height:0" 
+					:session-from="userInfo.id"
+					:send-message-title="'渝快同城用户UID' + userInfo.id"
+					send-message-path="pages/my/my"
+					:send-message-img="$baseUrl + '/share_logos.png'"
+					show-message-card
+					open-type="contact">
 					<view class="setItem-title">
 						<view>
 							<u-icon name="/static/zxkf.png" size="18"></u-icon>
 						</view>
-						<view style="margin-left: 10rpx;">联系客服</view>
+						<view style="margin-left: 10rpx;font-size: 16px;">联系客服</view>
 					</view>
 					<view style="display: flex;align-items: center;">
-						<view style="font-size: 14px;color: #c2ccc2;">9:00-20:00</view>
+						<view style="font-size: 14px;color: #c2ccc2;">工作时间：9:00-22:00</view>
 						<u-icon name="arrow-right" color="#b0b9b0" size="20"></u-icon>
 					</view>
-				</view>
-				<!-- <view class="setItem" style="margin-top: 100rpx;">
+				</button>
+				
+				<!-- <view class="setItem" style="margin-top: 50rpx;">
 					<u-button @click="outLogin" type="primary" text="退出登录"
 						style="background-color: #3C9CFF;border-color: #3C9CFF;"></u-button>
 				</view> -->
@@ -226,6 +234,31 @@
 			 * 初始化方法
 			 */
 			async init(){
+				
+				// #ifdef H5|APP
+				let userInfo = uni.getStorageSync('userInfo')
+				if(!userInfo){
+					uni.showModal({
+						title: "用户未登录",
+						content:"个人中心需要登录后才能使用，建议您先登录账号后体验！",
+						cancelText:"暂不登录",
+						confirmText:"去登录",
+						success(res) {
+							if(res.confirm){
+								uni.navigateTo({
+									url:"/pages/login/index"
+								})
+								return
+							}
+							uni.switchTab({
+								url:"/pages/index/index"
+							})
+						}
+					})
+					return
+				}
+				// #endif
+				
 				this.getUserInfo()
 				await this.getInformationCount()
 				uni.hideLoading()
@@ -262,8 +295,8 @@
 			bind_community() {
 				if(this.userInfo.community_id){
 					uni.showModal({
-						title: '换绑小区',
-						content: '如果当前显示的小区非您真实所在小区，您可进行更换绑定所在小区，是否需要换绑？',
+						title: '换绑地点',
+						content: '如果当前显示的地点非您真实常驻地点，您可进行更换绑定所在地点，是否需要换绑？',
 						success: (res)=>{
 							if(res.confirm){
 								this.bind_select_community()
@@ -373,8 +406,8 @@
 			 */
 			outLogin() {
 				uni.showModal({
-					title: '温馨提示',
-					content: '确定需要退出登录吗？',
+					title: '关闭提示',
+					content: '即将退出登录并关闭软件，您确定需要退出登录吗？',
 					success: (res) => {
 						if (res.confirm) {
 							uni.clearStorageSync()
@@ -383,9 +416,7 @@
 								icon: "none"
 							})
 							setTimeout(() => {
-								uni.reLaunch({
-									url: "../login/login"
-								})
+								uni.navigateBackMiniProgram()
 							}, 800)
 						}
 					}
@@ -401,6 +432,9 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx 0;
+	}
+	.setItemBtn::after{
+		border: none;
 	}
 	.setItem-title{
 		display: flex;
